@@ -1,11 +1,18 @@
 """Portada: la pregunta rectora, la cifra con la que el equipo acordó encabezar (la brecha
-de trabajo no pagado, con la jornada total como apoyo) y la escalera de lo general a lo
-particular que ordena las demás páginas."""
+de trabajo no pagado, con la jornada total como apoyo), la escalera de lo general a lo
+particular que ordena las demás páginas y un adelanto de Decisión (escenario simulado) y
+de Metodología. Toda cifra se lee de los datos, igual que en su página."""
 
 import streamlit as st
 
 import datos as d
-from componentes import esc, f_ent, f_horas, f_num, f_pct, insignias
+from componentes import (ESTADOS, esc, f_cambio, f_ent, f_horas, f_num, f_pct, insignias, kpis_con_meta,
+                         subtitulo, vacio)
+
+
+def millones(v):
+    """Pesos en millones, con el mismo formato que la página Decisión: $1.08 M o −$0.49 M."""
+    return '—' if vacio(v) else f'{"−" if v < 0 else ""}${abs(v) / 1e6:,.2f} M'
 
 brecha = d.kpi(d.KPI_BRECHA)
 jornada = d.kpi(d.KPI_JORNADA_MUJERES)
@@ -57,3 +64,47 @@ for col, (escala, valor, texto, nivel, fuente, exploratorio, destino) in zip(st.
           <p class="obs-tile-valor">{esc(valor)}</p><p class="obs-tile-contexto">{esc(texto)}</p>
           <div class="obs-tile-pie">{insignias(nivel, exploratorio)}<span>{esc(fuente)}</span></div></div>''')
         st.page_link(destino, label=f'Ir a {escala}', icon=':material/arrow_forward:')
+
+# --- Adelanto de Decisión: mismas cifras y mismas reglas de estado que la página ---------------
+r = d.resumen_decision()
+fam, equilibrio, van = r['familias_estable'], r['punto_equilibrio'], r['van_esperado_etapas']
+st.space('medium')
+subtitulo('Del dato a la decisión',
+          'La oferta formal de cuidado se contrajo y no hay señales de que vuelva a crecer sola. Con los hallazgos '
+          'del observatorio se evaluó si conviene una red de cuidado a domicilio en Iztapalapa.')
+st.info('**Escenario simulado.** El programa y su operador son hipotéticos; los datos del observatorio son reales.',
+        icon=':material/science:')
+kpis_con_meta([
+    {'etiqueta': 'Oferta formal de respaldo en la CDMX', 'valor': f_ent(r['oferta_hoy']),
+     'meta': f'Referencia: {f_ent(r["oferta_2016"])} en 01/2016 '
+             f'({f_cambio((r["oferta_hoy"] / r["oferta_2016"] - 1) * 100)}).',
+     'estado': 'critico' if r['oferta_hoy'] < r['oferta_2016'] else 'ok', 'detalle_estado': 'a la baja',
+     'nivel': 'CDMX', 'fuente': 'DENUE 2016-2026'},
+    {'etiqueta': 'Familias del programa en estado estable (realista)', 'valor': f_ent(fam),
+     'meta': f'Meta: punto de equilibrio de {f_ent(equilibrio)} familias '
+             f'({f_cambio((fam / equilibrio - 1) * 100) if not (vacio(fam) or vacio(equilibrio)) else "—"}).',
+     'estado': 'ok' if not (vacio(fam) or vacio(equilibrio)) and fam >= equilibrio else 'critico',
+     'nivel': 'AGEB', 'simulado': True, 'fuente': 'Escenario simulado'},
+    {'etiqueta': 'VAN esperado, invirtiendo por etapas', 'valor': millones(van),
+     'meta': 'Meta: VAN > 0 al 10 % real, con revisión en el mes 12.',
+     'estado': 'ok' if not vacio(van) and van > 0 else 'critico',
+     'nivel': 'AGEB', 'simulado': True, 'fuente': 'Escenario simulado'},
+])
+st.page_link('paginas/decision.py', label='Ir a Decisión', icon=':material/arrow_forward:')
+
+# --- Franja de Metodología: fuentes, advertencias y cifras de control ----------------------------
+m = d.metodologia
+repo = d.repositorio()
+st.space('medium')
+subtitulo('Cómo se hizo', 'Todas las cifras son del INEGI y se publican con su fuente, su año y su nivel geográfico.')
+fuentes = ''.join(
+    f'''<div class="obs-tarjeta"><p class="obs-tile-etiqueta">{esc(f["clave"])}</p>
+      <p class="obs-tile-contexto">{esc(f["nombre"])}</p><div class="obs-tile-pie">{insignias(f["niveles"])}</div></div>'''
+    for f in m.FUENTES)
+st.html(f'<div class="obs-rejilla" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">{fuentes}</div>')
+cuadran, controles = sum(x['ok'] for x in repo.controles), len(repo.controles)
+clase, forma, _ = ESTADOS['ok' if repo.controles_ok else 'critico']
+st.html(f'''<div class="obs-nota"><span>{len(m.ADVERTENCIAS)} advertencias de lectura dicen qué se puede y qué no
+  se puede afirmar con cada cifra.</span><span class="obs-estado {clase}"><span aria-hidden="true">{forma}</span>
+  {cuadran} de {controles} cifras de control cuadran</span></div>''')
+st.page_link('paginas/metodologia.py', label='Ir a Metodología', icon=':material/arrow_forward:')

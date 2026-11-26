@@ -53,6 +53,20 @@ def test_portada_encabeza_con_el_trabajo_no_pagado():
     assert 'Fuente: INEGI, ENUT 2024' in t
 
 
+def test_portada_resume_decision_y_metodologia():
+    at = abrir()
+    t = texto(at)
+    assert any('Escenario simulado' in i.value for i in at.info), 'el adelanto de Decisión se marca como simulado'
+    assert 'Simulado' in t, 'las tarjetas del programa llevan la insignia'
+    assert '838' in t and '1,337' in t, 'la misma oferta que la página Decisión'
+    assert '$1.08 M' in t, 'VAN esperado invirtiendo por etapas, leído de indicadores.escenarios_programa'
+    for fuente in ('ENUT 2024', 'ENASIC 2022', 'Censo 2020', 'DENUE 05/2026'):
+        assert fuente in t
+    assert f'{TOTAL_CONTROLES} de {TOTAL_CONTROLES} cifras de control cuadran' in t
+    enlaces = [e.proto.label for e in at.get('page_link')]
+    assert 'Ir a Decisión' in enlaces and 'Ir a Metodología' in enlaces
+
+
 def test_enasic_se_presenta_solo_como_nacional():
     at = abrir('paginas/mexico.py')
     assert any('Cifras solo nacionales' in i.value for i in at.info)
