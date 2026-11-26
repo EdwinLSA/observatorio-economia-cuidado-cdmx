@@ -1,36 +1,50 @@
-"""Colores y estilos de la app: la paleta Jacaranda de frontend/css/tokens.css.
+"""Colores y estilos de la app: la paleta Jacaranda de frontend/css/tokens.css, en la
+versión que propuso el equipo en noviembre de 2026 (Propuesta_Paleta_Observatorio_Cuidado):
+los colores salen de la ciudad y los fondos son neutros con un tinte lila frío.
 
 Streamlit no siempre sabe, al abrir la app, si quien la visita usa tema claro u oscuro.
 Por eso las gráficas usan colores de datos que funcionan en los dos, validados con
-validate_palette.py (guía de visualización) contra #f9f9f7, #0d0d0d y #1a1a19:
+validate_palette.py (guía de visualización) contra #fbfafd y #16131d:
 
-  - acento #6f5bf0 frente al gris de referencia #898781: ΔE 22.8 en visión normal y
-    21.9 o más con protanopía y deuteranopía; contraste del acento 4.5:1 en claro y
-    3.7:1 o más en oscuro;
-  - trabajo pagado #898781, doméstico #a8a8fe y cuidado #5644c0: ΔE de 19 o más entre
-    vecinos con y sin daltonismo. Doméstico (en claro) y cuidado (en oscuro) quedan bajo
-    3:1 de contraste, así que esa gráfica siempre lleva etiquetas y tabla.
+  - acento #7a5fb1 (el paso 450 de la rampa, entre #8a6fc2 y #6b4fa0 del documento) frente
+    al gris de referencia #898781: ΔE 15.4 en visión normal y 14.7 con protanopía y
+    deuteranopía; contraste del acento 4.9:1 en claro y 3.6:1 en oscuro. El #6b4fa0 del
+    documento queda en 2.8:1 sobre el fondo oscuro, por eso no es el acento de las gráficas;
+  - trabajo pagado #898781, doméstico #c0b0e3 y cuidado #6b4fa0 (la Jacaranda principal):
+    ΔE de 17.5 o más entre vecinos con y sin daltonismo. Doméstico (en claro, 1.9:1) y
+    cuidado (en oscuro, 2.8:1) quedan bajo 3:1 de contraste, así que esa gráfica siempre
+    lleva etiquetas y tabla;
+  - el acento frente a crítico #d03b3b: ΔE 22.3 y 18.3.
+
+Los hombres siguen en gris: son la referencia de la brecha, no una categoría más. Crítico,
+aviso y sin dato son colores de estado, reservados, y no cambian con la paleta.
 
 El texto de las gráficas usa `currentColor`: toma el color de texto del tema activo.
 """
 
 import streamlit as st
 
-ACENTO = '#6f5bf0'       # mujeres, cifra principal, alcaldía elegida
+ACENTO = '#7a5fb1'       # mujeres, cifra principal, alcaldía elegida
 REFERENCIA = '#898781'   # hombres (referencia) y contexto nacional
 MERCADO = '#898781'      # trabajo pagado
-DOMESTICO = '#a8a8fe'    # trabajo doméstico no remunerado
-CUIDADO = '#5644c0'      # cuidado no remunerado
+DOMESTICO = '#c0b0e3'    # trabajo doméstico no remunerado
+CUIDADO = '#6b4fa0'      # cuidado no remunerado
 CRITICO = '#d03b3b'      # alta carga sin respaldo (estado; siempre con ícono y etiqueta)
 AVISO = '#fab219'        # dato exploratorio (estado)
 SIN_DATO = '#c3c2b7'     # "No aplica"
 TEXTO = 'currentColor'
-TINTA = '#0b0b0b'
+TINTA = '#221d2e'
 BLANCO = '#ffffff'
 
-VIOLETA = {100: '#dbdcfe', 150: '#c9cbfe', 200: '#b9bafe', 250: '#a8a8fe', 300: '#9895fd',
-           350: '#8a82fd', 400: '#7c6cfd', 450: '#6f5bf0', 500: '#6250d6', 550: '#5644c0',
-           600: '#4a3aa8', 650: '#3e2e92', 700: '#322679'}
+# Rampa jacaranda: los siete tonos del documento en los pasos 100, 200, ..., 700, y los
+# intermedios (150, 250, ..., 650) calculados en OKLab entre sus vecinos.
+VIOLETA = {100: '#eee9f7', 150: '#e0d7f2', 200: '#d2c6ec', 250: '#c0b0e3', 300: '#ae9ad9',
+           350: '#9c84ce', 400: '#8a6fc2', 450: '#7a5fb1', 500: '#6b4fa0', 550: '#5c438c',
+           600: '#4d3778', 650: '#3e2c64', 700: '#2f2150'}
+# Colores de apoyo del documento, en su orden fijo (jacaranda, ahuehuete, cempasúchil, rosa
+# mexicano, añil, tezontle), para gráficas con varias categorías. Nunca se reordenan.
+CATEGORICA = {'claro': ['#6b4fa0', '#167a58', '#c97f12', '#c2366e', '#3a6fb0', '#9a4a3a'],
+              'oscuro': ['#9277cf', '#24946b', '#c98420', '#cf4d86', '#4f82c9', '#b85e4a']}
 # Magnitud (mosaico y mapa): un solo tono, de claro a oscuro.
 SECUENCIAL = [VIOLETA[p] for p in (150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700)]
 
@@ -63,7 +77,7 @@ def rgb(hexa, alfa=255):
 
 
 def _rgba(hexa, alfa):
-    """Un color de la paleta, translúcido, para CSS: _rgba('#6f5bf0', .07) -> 'rgba(111,91,240,0.07)'."""
+    """Un color de la paleta, translúcido, para CSS: _rgba('#7a5fb1', .07) -> 'rgba(122,95,177,0.07)'."""
     r, g, b, _ = rgb(hexa)
     return f'rgba({r},{g},{b},{alfa})'
 
@@ -78,14 +92,14 @@ CSS = f"""
 .obs-insignia {{ display: inline-flex; align-items: center; gap: 5px; font-size: .74rem; line-height: 1.5;
   padding: 0 8px; border-radius: 999px; border: 1px solid rgba(128,128,128,.45); white-space: nowrap; }}
 .obs-insignia::before {{ content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: .55; }}
-.obs-insignia--nacional {{ border-color: rgba(111,91,240,.55); background: rgba(111,91,240,.10); }}
+.obs-insignia--nacional {{ border-color: {_rgba(ACENTO, .55)}; background: {_rgba(ACENTO, .10)}; }}
 .obs-insignia--exploratorio {{ border-color: rgba(250,178,25,.8); background: rgba(250,178,25,.14); }}
 .obs-insignia--exploratorio::before {{ background: {AVISO}; opacity: 1; }}
 .obs-nota {{ display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; font-size: .8rem; opacity: .78;
   margin-top: 6px; }}
 .obs-tarjeta {{ border: 1px solid rgba(128,128,128,.28); border-radius: 12px; padding: 16px 18px; height: 100%;
   display: flex; flex-direction: column; gap: 6px; }}
-.obs-tarjeta--destacada {{ border-color: rgba(111,91,240,.6); background: rgba(111,91,240,.06); }}
+.obs-tarjeta--destacada {{ border-color: {_rgba(ACENTO, .6)}; background: {_rgba(ACENTO, .06)}; }}
 .obs-tile-etiqueta {{ font-size: .88rem; opacity: .8; margin: 0; }}
 .obs-tile-valor {{ font-size: 2rem; font-weight: 700; line-height: 1.1; margin: 2px 0;
   font-variant-numeric: tabular-nums; }}
@@ -97,8 +111,8 @@ CSS = f"""
 .obs-hallazgo p {{ margin: 0; font-size: .93rem; line-height: 1.5; }}
 .obs-hallazgo .obs-advertencia {{ font-size: .82rem; opacity: .8; border-top: 1px dashed rgba(128,128,128,.4);
   padding-top: 6px; }}
-.obs-heroe {{ border: 1px solid rgba(111,91,240,.5); border-radius: 16px; padding: 22px 24px;
-  background: rgba(111,91,240,.07); }}
+.obs-heroe {{ border: 1px solid {_rgba(ACENTO, .5)}; border-radius: 16px; padding: 22px 24px;
+  background: {_rgba(ACENTO, .07)}; }}
 .obs-heroe .obs-cifra {{ font-size: 4.6rem; font-weight: 800; line-height: 1; letter-spacing: -.02em;
   font-variant-numeric: tabular-nums; margin: 8px 0; }}
 .obs-heroe .obs-cifra span {{ font-size: 2rem; font-weight: 600; opacity: .7; margin-left: 4px; }}
@@ -140,8 +154,8 @@ CSS = f"""
 .obs-estado--aviso span {{ color: #b07800; }}
 .obs-estado--critico {{ background: rgba(208,59,59,.13); }}
 .obs-estado--critico span {{ color: {CRITICO}; }}
-.obs-decision {{ border: 1px solid rgba(111,91,240,.55); border-radius: 14px; padding: 18px 22px;
-  background: rgba(111,91,240,.07); }}
+.obs-decision {{ border: 1px solid {_rgba(ACENTO, .55)}; border-radius: 14px; padding: 18px 22px;
+  background: {_rgba(ACENTO, .07)}; }}
 .obs-decision h4 {{ margin: 0 0 6px; font-size: 1.15rem; padding: 0; }}
 .obs-decision ol {{ margin: 6px 0 0; padding-left: 1.2em; }}
 .obs-decision li {{ margin: 3px 0; }}
