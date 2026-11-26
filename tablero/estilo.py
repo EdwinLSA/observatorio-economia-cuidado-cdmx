@@ -62,6 +62,12 @@ def rgb(hexa, alfa=255):
     return [int(hexa[i:i + 2], 16) for i in (1, 3, 5)] + [alfa]
 
 
+def _rgba(hexa, alfa):
+    """Un color de la paleta, translúcido, para CSS: _rgba('#6f5bf0', .07) -> 'rgba(111,91,240,0.07)'."""
+    r, g, b, _ = rgb(hexa)
+    return f'rgba({r},{g},{b},{alfa})'
+
+
 # Bordes y fondos translúcidos: se ven bien sobre el fondo claro y sobre el oscuro.
 CSS = f"""
 <style>
@@ -141,9 +147,39 @@ CSS = f"""
 .obs-decision li {{ margin: 3px 0; }}
 .obs-pie {{ margin-top: 48px; padding-top: 14px; border-top: 1px solid rgba(128,128,128,.28);
   font-size: .8rem; opacity: .75; }}
+/* --- Portada (paginas/inicio.py). Los colores salen de ACENTO: cambian con la paleta. --- */
+.obs-portada-entrada {{ font-size: 1.08rem; line-height: 1.6; max-width: 62ch; margin: 0; }}
+.obs-portada-seccion {{ display: flex; align-items: baseline; gap: 10px; margin: 0 0 -8px; font-size: .78rem;
+  letter-spacing: .08em; text-transform: uppercase; opacity: .75; }}
+.obs-portada-seccion b {{ color: {ACENTO}; font-weight: 800; }}
+.obs-portada-hallazgos {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 28px; }}
+.obs-portada-hallazgo {{ border-top: 2px solid {ACENTO}; padding-top: 14px; display: flex; flex-direction: column;
+  gap: 8px; }}
+.obs-portada-hallazgo h4 {{ margin: 0; padding: 0; font-size: 1.12rem; line-height: 1.3; }}
+.obs-portada-hallazgo p {{ margin: 0; font-size: .95rem; line-height: 1.55; }}
+.obs-portada-num {{ font-size: 2.1rem; font-weight: 800; line-height: 1; color: {ACENTO};
+  font-variant-numeric: tabular-nums; }}
+.obs-portada-vision {{ border-radius: 16px; padding: 24px 28px; background: {_rgba(ACENTO, .07)};
+  border: 1px solid {_rgba(ACENTO, .35)}; height: 100%; }}
+.obs-portada-vision h3 {{ margin: 0 0 10px; padding: 0; font-size: 1.5rem; line-height: 1.25; }}
+.obs-portada-vision p {{ margin: 0 0 10px; line-height: 1.6; }}
+.obs-portada-iniciativas {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px;
+  margin: 14px 0 0; padding: 0; list-style: none; }}
+.obs-portada-iniciativas li {{ border-left: 3px solid {ACENTO}; padding: 2px 0 2px 12px; font-size: .88rem;
+  line-height: 1.45; }}
+.obs-portada-iniciativas b {{ display: block; font-size: .96rem; margin-bottom: 2px; }}
+.obs-portada-destino {{ border-top: 1px solid rgba(128,128,128,.35); padding-top: 12px; display: flex;
+  flex-direction: column; gap: 6px; min-height: 168px; }}
+.obs-portada-destino .obs-portada-etiqueta {{ font-size: .78rem; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; opacity: .7; margin: 0; }}
+.obs-portada-destino h4 {{ margin: 0; padding: 0; font-size: 1.1rem; line-height: 1.3; }}
+.obs-portada-destino .obs-portada-gancho {{ margin: 0; font-size: .86rem; opacity: .85; }}
+.obs-portada-destino .obs-portada-gancho strong {{ font-size: 1.2rem; opacity: 1; font-variant-numeric: tabular-nums; }}
 @media (max-width: 640px) {{
   .obs-heroe .obs-cifra {{ font-size: 3.4rem; }}
   .obs-no-si {{ grid-template-columns: 1fr; }}
+  .obs-portada-vision {{ padding: 18px; }}
+  .obs-portada-destino {{ min-height: 0; }}
 }}
 </style>
 """
